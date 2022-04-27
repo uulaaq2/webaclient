@@ -1,10 +1,13 @@
 import React from 'react'
-import { Checkbox, FormControlLabel } from '@mui/material'
+import { Checkbox, FormControlLabel, Typography } from '@mui/material'
+import style from './style.css'
 
-
-const BCheckBox = ({ label }) => {
+const BCheckBox = ({ label, color }) => {
   return (
-    <FormControlLabel control={<Checkbox />} label={label} />
+    <FormControlLabel 
+    control={<Checkbox color="primary" />}
+    label={<Typography className={style.label}>{label}</Typography>}
+/>
   );
 };
 

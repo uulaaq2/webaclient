@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack');
 
 /*We are basically telling webpack to take index.js from entry. Then check for all file extensions in resolve. 
 After that apply all the rules in module.rules and produce the output and place it in main.js in the public folder.*/
@@ -60,7 +61,10 @@ module.exports={
          * resolve the one with the extension listed first in the array and skip the rest. 
          * This is what enables users to leave off the extension when importing
          */
-        extensions: ['.js','.jsx','.json'] 
+        extensions: ['.js','.jsx','.json'],
+        alias: {
+            process: "process/browser"
+        }
     },
     module:{
         /** "rules"
@@ -95,5 +99,10 @@ module.exports={
                 ],
             },
         ]
-    }
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+            process: 'process/browser',
+        }),
+    ]
 }
