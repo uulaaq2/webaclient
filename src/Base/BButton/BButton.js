@@ -7,7 +7,7 @@ const BButton = ({ children, buttonType, variant, color, ...rest }) => {
     variant = 'contained'
   }
   return (
-    <Button variant={variant} color={color} {...rest} disableElevation style={{textTransform: 'none', borderRadius: config.theme.buttonRadius}}>{children}</Button>
+    <Button variant={variant} color={color} {...rest} disableElevation >{children}</Button>
   );
 };
 

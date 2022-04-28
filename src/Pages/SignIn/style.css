@@ -5,12 +5,6 @@
   justify-content: center;
 }
 
-.loginPanelContainer {
-  max-width: 33%;
-  border: 1px solid yellow;
-  background: yellow
-}
-
 .logo {
   width: 100px;
   margin-right: auto;
