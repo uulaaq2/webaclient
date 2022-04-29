@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import BGrid from '../../Base/BGrid/BGrid'
-import BButton from '../../Base/BButton/BButton'
+import BLoadingButton from '../../Base/BLoadingButton/BLoadingButton'
 import BLink from '../../Base/BLink/BLink'
 import BCheckBox from '../../Base/BCheckBox/BCheckBox'
 import BStack from '../../Base/BStack/BStack'
@@ -12,6 +12,7 @@ import logo from '../../images/logo.png'
 import config from '../../config'
 import validateInputFields from '../../functions/validateInputFields'
 import FormError from '../../Components/FormError'
+import fSignIn from '../../functions/user/fSignIn'
 
 const Item = styled(BPaper)(({ theme }) => ({
   backgroundColor: '#fff',
@@ -68,10 +69,8 @@ const SignIn = () => {
 
 
   async function handleSubmit() {
-    console.log('aaa ', inputs)
     try {      
       const validateInputFieldsResult = validateInputFields(inputs)
-      console.log(validateInputFieldsResult)
       if (validateInputFieldsResult.status === 'error') { 
         throw new Error(validateInputFieldsResult.message) 
       }
@@ -79,7 +78,14 @@ const SignIn = () => {
 
       setInProgress(true)
 
+      const email = emailRef.current.value
+      const password = passwordRef.current.value
+      const setCookie = true
+      const rememberMe = rememberMeRef.current.checked
 
+      const signInResult = fSignIn(email, password, setCookie, rememberMe)
+
+      
     } catch (error) {      
       setFormError(error.message)
       setInProgress(false)
@@ -100,7 +106,7 @@ const SignIn = () => {
           </BStack>              
         </BStack>          
         <BStack>
-          <BButton buttonType='signIn' onClick={handleSubmit}>Sign in</BButton>
+          <BLoadingButton buttonType='signIn' onClick={handleSubmit}>Sign in</BLoadingButton>
         </BStack> 
         <BStack>
           { formError ? <FormError errorText={formError} /> : '' }

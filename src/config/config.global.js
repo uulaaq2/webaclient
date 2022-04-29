@@ -29,10 +29,12 @@ module.exports = {
     api: {
         urls: {
             server: 'http://AUBOTD9X94HD2:3001',
-            signIn: '/signin',
-            verifyPassword: '/user/me/verifypassword',
-            changePassword: '/user/me/changepassword',
-            emailResetPasswordLink: '/user/me/emailpasswordresetlink',
+            user: {
+                signIn: 'http://AUBOTD9X94HD2:3001/signin',
+                verifyPassword: '/user/me/verifypassword',
+                changePassword: '/user/me/changepassword',
+                emailResetPasswordLink: '/user/me/emailpasswordresetlink',
+            },
             getDrawings: '/getdrawings',
             verifyToken: '/verifytoken'
         }

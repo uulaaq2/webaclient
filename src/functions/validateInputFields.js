@@ -6,7 +6,6 @@ const validateInputFields = (inputs) => {
     let errorText = ''
     let notChecked
     let erroredElements = []
-    console.log('ABC ', inputs)
 
     for (let key in inputs) {    
       errorText = ''
