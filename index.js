@@ -6,12 +6,17 @@ import { createTheme, ThemeProvider, styled } from '@mui/material/styles'
 
 const theme = createTheme({
       shape: {
-            borderRadius: 10,
+            borderRadius: 12,
       },
       typography: {
             //htmlFontSize: 16,            
-            overline: {
-                  textTransform: "lowercase"
+            button: {
+                  textTransform: 'none'
+            }
+      },
+      palette: {
+            background: {
+                  paper: '#fff'
             }
       }
 

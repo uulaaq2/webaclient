@@ -1,7 +1,7 @@
 import { setError, setSuccess, setWarning } from './setReply'
 
 const validateInputFields = (inputs) => {  
-  try {        
+  try {   
     let inputValue = ''
     let errorText = ''
     let notChecked

@@ -7,4 +7,4 @@ const BGrid = ({ children, ...rest}) => {
   );
 };
 
-export default BGrid;
+export default BGrid

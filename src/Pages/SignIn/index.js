@@ -1,29 +1,22 @@
+import moduleStyle from './style.css'
+import globalStyle from '../../app.css'
+
 import React, { useState, useEffect, useRef } from 'react'
-import BGrid from '../../Base/BGrid/BGrid'
-import BLoadingButton from '../../Base/BLoadingButton/BLoadingButton'
-import BLink from '../../Base/BLink/BLink'
-import BCheckBox from '../../Base/BCheckBox/BCheckBox'
-import BStack from '../../Base/BStack/BStack'
-import BPaper from '../../Base/BPaper/BPaper'
-import BTextField from '../../Base/BTextField/BTextField'
+import BGrid from '../../Base/BGrid'
+import BLoadingButton from '../../Base/BLoadingButton'
+import BLink from '../../Base/BLink'
+import BCheckBox from '../../Base/BCheckBox'
+import BStack from '../../Base/BStack'
+import BPaper from '../../Base/BPaper'
+import BTextField from '../../Base/BTextField'
 import { styled } from '@mui/system'
-import style from './style.css'
 import logo from '../../images/logo.png'
 import config from '../../config'
 import validateInputFields from '../../functions/validateInputFields'
-import FormError from '../../Components/FormError'
+import BFormError from '../../Base/BAlerts/BFormError'
 import fSignIn from '../../functions/user/fSignIn'
-
-const Item = styled(BPaper)(({ theme }) => ({
-  backgroundColor: '#fff',
-  padding: theme.spacing(3),
-  borderRadius: config.theme.boxRadius,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem',
-  width: '100%',
-  maxWidth: '410px'
-}))
+import { useNavigate } from 'react-router-dom'
+import { bSetCookie } from '../../functions/bCookie'
 
 const SignIn = () => { 
   document.title = config.urls.signIn.name + ' | ' + config.app.name
@@ -35,11 +28,16 @@ const SignIn = () => {
   const [inProgress, setInProgress] = useState(false)
   const [erroredInputs, setErroredInputs] = useState([])
   const [formError, setFormError] = useState('')
+  
+  const navigate = useNavigate()
+
+  const [showDialog, setShowDialog] = useState(false)
 
   const [inputs] = useState({
     email: {      
       name: 'Email or User Name',
       label: 'Email or User name',
+      type: 'text',
       errorText: '',
       ref: emailRef,
       required: true,
@@ -48,6 +46,7 @@ const SignIn = () => {
     password: {
       name: 'Password',
       label: 'Password',
+      type: 'password',
       errorText: '',
       ref: passwordRef,
       required: true,
@@ -68,7 +67,8 @@ const SignIn = () => {
   }, [erroredInputs])
 
 
-  async function handleSubmit() {
+  async function handleSubmit() {    
+    setShowDialog(true)
     try {      
       const validateInputFieldsResult = validateInputFields(inputs)
       if (validateInputFieldsResult.status === 'error') { 
@@ -80,11 +80,25 @@ const SignIn = () => {
 
       const email = emailRef.current.value
       const password = passwordRef.current.value
-      const setCookie = true
       const rememberMe = rememberMeRef.current.checked
 
-      const signInResult = fSignIn(email, password, setCookie, rememberMe)
+      const signInResult = await fSignIn(email, password, true, rememberMe)   
+      if (signInResult.status === 'error') {
+        throw new Error(signInResult.message)
+      }
+      if (signInResult.status === 'accountIsExpired') {
+        throw new Error('Your account is expired, please contact to your system administrator')
+      }
+      if (signInResult.status === 'shouldChangePassword') {
+        navigate(config.urls.changePassword.path + '/' + signInResult.token + '1')
 
+        return
+      }      
+      if (signInResult.status !== 'ok') {
+        throw new Error('Invalid login credentials')
+      }
+
+      bSetCookie('token', signInResult.token, rememberMe)
       
     } catch (error) {      
       setFormError(error.message)
@@ -92,11 +106,10 @@ const SignIn = () => {
     }    
   }
 
-  
   return (
-    <BGrid className={style.mainContainer}>
-      <Item>
-        <img src={logo} alt='' className={style.logo} />
+    <BGrid className={moduleStyle.mainContainer}>
+      <BPaper className={moduleStyle.formContainer}>
+        <img src={logo} alt='' className={globalStyle.logoTopLeft} />
         <BStack spacing='1.2rem'>
           <BTextField label={inputs.email.label} type={inputs.email.type} errorText={inputs.email.errorText} inputRef={emailRef} fullWidth />
           <BTextField label={inputs.password.label} type={inputs.password.type} errorText={inputs.password.errorText} inputRef={passwordRef} fullWidth />
@@ -106,14 +119,15 @@ const SignIn = () => {
           </BStack>              
         </BStack>          
         <BStack>
-          <BLoadingButton buttonType='signIn' onClick={handleSubmit}>Sign in</BLoadingButton>
+          <BLoadingButton buttonType='submit' onClick={handleSubmit} loading={inProgress}>Sign in</BLoadingButton>
         </BStack> 
         <BStack>
-          { formError ? <FormError errorText={formError} /> : '' }
+          { formError ? <BFormError message={formError} /> : '' }
         </BStack>
-      </Item>
+      </BPaper>
     </BGrid>
-  );
+  )
+
 };
 
 export default SignIn;

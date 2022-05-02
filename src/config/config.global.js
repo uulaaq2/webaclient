@@ -17,9 +17,9 @@ module.exports = {
             path: '/signin',
             name: 'Sign in'
         },
-        resetPassword: {
-            path: '/resetpassword',
-            name: 'Reset password'
+        changePassword: {
+            path: '/changepassword',
+            name: 'Change password'
         },
         drawings: { 
             path: '/drawings',
@@ -31,7 +31,7 @@ module.exports = {
             server: 'http://AUBOTD9X94HD2:3001',
             user: {
                 signIn: 'http://AUBOTD9X94HD2:3001/signin',
-                verifyPassword: '/user/me/verifypassword',
+                verifyPassword: 'http://AUBOTD9X94HD2:3001/user/me/verifypassword',
                 changePassword: '/user/me/changepassword',
                 emailResetPasswordLink: '/user/me/emailpasswordresetlink',
             },

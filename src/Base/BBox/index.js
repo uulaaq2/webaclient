@@ -1,9 +1,9 @@
 import React from 'react'
 import { Box } from '@mui/material'
 
-const BBox = ({ children }) => {
+const BBox = ({ children, ...rest }) => { 
   return (
-    <Box>{children}</Box>
+      <Box { ...rest }>{children}</Box>
   );
 };
 

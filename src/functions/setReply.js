@@ -50,7 +50,7 @@ const setError = (error) => {
         message: error.message
     }
 
-    if (showClientDevelopmentErros) {
+    if (showClientDevelopmentErros && error.stack) {
         reply.stack = error.stack
     }
 

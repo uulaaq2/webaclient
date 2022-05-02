@@ -3,15 +3,15 @@ import { LoadingButton } from '@mui/lab'
 
 const BLoadingButton = ({ children, buttonType = '', variant = '', color = 'primary', disableElevation = true, ...rest }) => {
   if (buttonType === '') {
-    if (variant === '') {
-      variant = 'contained'
-    }
+    variant = 'contained'
   }
 
-  if (buttonType === 'signIn') {
-    if (variant === '') {
-      variant = 'contained'
-    }
+  if (buttonType === 'submit') {
+    variant = 'contained'
+  }  
+
+  if (buttonType === 'text') {
+    variant = 'text'
   }
 
   return (

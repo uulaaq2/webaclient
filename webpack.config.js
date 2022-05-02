@@ -22,7 +22,7 @@ module.exports={
         /** "filename"
          * the name of the output file 
          */
-        filename: "main.js"
+        filename: "main.js"        
     },
     /** "target"
      * setting "node" as target app (server side), and setting it as "web" is 
@@ -53,7 +53,9 @@ module.exports={
         */
         liveReload: true,
 
-        historyApiFallback: true,
+        historyApiFallback: {
+            disableDotRule: true
+        }
     },
     resolve: {
         /** "extensions" 
@@ -76,7 +78,7 @@ module.exports={
         rules: [
             {
                 test: /\.(js|jsx)$/,    //kind of file extension this rule should look for and apply in test
-                //exclude: /node_modules/, //folder to be excluded
+                exclude: /node_modules/, //folder to be excluded
                 use:  'babel-loader' //loader which we are going to use                
                 
             },

@@ -3,8 +3,16 @@ import { Button } from '@mui/material'
 import config from '../../config'
 
 const BButton = ({ children, buttonType, variant, color, ...rest }) => {
-  if (variant === '') {
+  if (buttonType === '') {
     variant = 'contained'
+  }
+
+  if (buttonType === 'submit') {
+    variant = 'contained'
+  }  
+
+  if (buttonType === 'text') {
+    variant = 'text'
   }
 
   return (

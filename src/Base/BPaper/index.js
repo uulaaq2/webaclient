@@ -3,7 +3,9 @@ import { Paper } from '@mui/material'
 
 const BPaper = ({ children, ...rest}) => {
   return (
-    <Paper {...rest} elevation={0}>{children}</Paper>
+    <Paper elevation={0} {...rest}>
+      {children}    
+    </Paper>
   );
 };
 
