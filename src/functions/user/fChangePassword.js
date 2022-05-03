@@ -1,13 +1,14 @@
 import { setError, setSuccess, setWarning } from '../setReply'
 import BPost from '../bFetch'
 import config from '../../config'
+import { ConstructionOutlined } from '@mui/icons-material'
 
-async function fVerifyPassword(currentPassword, token) {  
+async function fChangePassword(newPassword, token) {  
   try {
-    const url = config.api.urls.user.verifyPassword  
+    const url = config.api.urls.user.changePassword  
 
     const data = {
-      currentPassword,
+      newPassword,
       token
     }
 
@@ -18,12 +19,12 @@ async function fVerifyPassword(currentPassword, token) {
       }
     }
   
-    const verifyPasswordResult = await BPost(url, data, fetchOptions)    
+    const changePasswordResult = await BPost(url, data, fetchOptions)    
 
-    return verifyPasswordResult    
+    return changePasswordResult    
   } catch (error) {
     return setError(error)
   }
 }
 
-export default fVerifyPassword
+export default fChangePassword

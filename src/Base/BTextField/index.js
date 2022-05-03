@@ -25,35 +25,13 @@ const ShowError = ({ errorText }) => {
   )
 }
 
-const BTextField = ({ children, error, errorText = '', loading = false, success = false, ...rest}) => {
+const BTextField = ({ children, error, errorText = '', success = false, ...rest}) => {
   const classes = useStyles()
-  let inputProps = {}
-
-  if (loading) {
-    inputProps = {
-      endAdornment: (
-          <InputAdornment position="start">
-            <CircularProgress size={20}/>
-          </InputAdornment>
-      )
-    }
-  }
-
-  if (success) {
-    inputProps = {
-      endAdornment: (
-          <InputAdornment position="start">
-            <DoneIcon />
-          </InputAdornment>
-      )
-    }
-  }
 
   return (
     <div>
       <TextField 
         error={errorText ? true : false } 
-        inputProps={inputProps}
         {...rest} 
         className={classes.root} 
       />

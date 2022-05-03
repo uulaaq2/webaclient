@@ -1,6 +1,6 @@
 import { setError, setSuccess, setWarning } from './setReply'
 
-const validateInputFields = (inputs) => {  
+export const validateInputFields = (inputs) => {  
   try {   
     let inputValue = ''
     let errorText = ''
@@ -59,4 +59,13 @@ const validateInputFields = (inputs) => {
   }
 }
 
-export default validateInputFields
+export const clearErrors = (inputs) => {
+  for (let key in inputs) {    
+    if (inputs.hasOwnProperty(key)) {
+        if (inputs[key].validate) {
+          inputs[key].errorText = ''
+          inputs.setErroredInputs(() => [])
+        }
+    }
+  }
+}

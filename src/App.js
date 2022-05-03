@@ -11,8 +11,8 @@ const App = () =>{
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path={config.urls.home.path} element={<Home />}></Route>
-          <Route path={config.urls.signIn.path} element={<SignIn />}></Route>                    
-          <Route path={config.urls.changePassword.path + '/:token'} element={<ChangePassword />}></Route>                                        
+          <Route path={config.urls.user.signIn.path} element={<SignIn />}></Route>                    
+          <Route path={config.urls.user.changePassword.path + '/:token'} element={<ChangePassword />}></Route>                                        
         </Routes>      
     </Router>        
     )

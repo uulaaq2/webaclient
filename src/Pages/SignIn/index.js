@@ -12,14 +12,14 @@ import BTextField from '../../Base/BTextField'
 import { styled } from '@mui/system'
 import logo from '../../images/logo.png'
 import config from '../../config'
-import validateInputFields from '../../functions/validateInputFields'
+import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
 import BFormError from '../../Base/BAlerts/BFormError'
 import fSignIn from '../../functions/user/fSignIn'
 import { useNavigate } from 'react-router-dom'
 import { bSetCookie } from '../../functions/bCookie'
 
 const SignIn = () => { 
-  document.title = config.urls.signIn.name + ' | ' + config.app.name
+  document.title = config.urls.user.signIn.name + ' | ' + config.app.name
 
   const emailRef = useRef()
   const passwordRef = useRef()  
@@ -80,17 +80,31 @@ const SignIn = () => {
 
       const email = emailRef.current.value
       const password = passwordRef.current.value
-      const rememberMe = rememberMeRef.current.checked
+      let rememberMe = rememberMeRef.current.checked
 
       const signInResult = await fSignIn(email, password, true, rememberMe)   
+      console.log(signInResult)
       if (signInResult.status === 'error') {
         throw new Error(signInResult.message)
       }
       if (signInResult.status === 'accountIsExpired') {
         throw new Error('Your account is expired, please contact to your system administrator')
       }
+
+      if (signInResult.hasOwnProperty('user')) {
+        if (signInResult.user.Can_Be_Remembered === 'No') {                    
+          rememberMe = false
+        }
+      }
+
       if (signInResult.status === 'shouldChangePassword') {
-        navigate(config.urls.changePassword.path + '/' + signInResult.token + '1')
+        
+        // prepare token and other options for change password
+        // last 3 digits for set cookie / remember me / show current password - 0: off / 1: on
+        // third from last digit: set cookie
+        // second from last digit: remember me depends on if the remember me checkbox is checked
+        // last digit: show current password
+        navigate(config.urls.user.changePassword.path + '/' + signInResult.token + '1' + (rememberMe ? '1' : '0') + '0')
 
         return
       }      

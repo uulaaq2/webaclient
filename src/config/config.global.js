@@ -1,3 +1,5 @@
+const apiServer = 'http://AUBOTD9X94HD2:3001'
+
 module.exports = {
     showClientDevelopmentErros: true,
     cookieExpiresIn: 14,
@@ -13,13 +15,15 @@ module.exports = {
             path: '/',
             name: 'Home'
         },
-        signIn: {
-            path: '/signin',
-            name: 'Sign in'
-        },
-        changePassword: {
-            path: '/changepassword',
-            name: 'Change password'
+        user : {
+            signIn: {
+                path: '/signin',
+                name: 'Sign in'
+            },
+            changePassword: {
+                path: '/changepassword',
+                name: 'Change password'
+            }
         },
         drawings: { 
             path: '/drawings',
@@ -28,15 +32,15 @@ module.exports = {
     },
     api: {
         urls: {
-            server: 'http://AUBOTD9X94HD2:3001',
             user: {
-                signIn: 'http://AUBOTD9X94HD2:3001/signin',
-                verifyPassword: 'http://AUBOTD9X94HD2:3001/user/me/verifypassword',
-                changePassword: '/user/me/changepassword',
-                emailResetPasswordLink: '/user/me/emailpasswordresetlink',
+                signIn: apiServer + '/signin',
+                verifyPassword: apiServer + '/user/me/verifypassword',
+                changePassword: apiServer + '/user/me/changepassword',
+                emailResetPasswordLink: apiServer + '/user/me/emailpasswordresetlink',
+                generateToken: apiServer + '/user/me/generatetoken'
             },
-            getDrawings: '/getdrawings',
-            verifyToken: '/verifytoken'
+            getDrawings: apiServer + '/getdrawings',
+            verifyToken: apiServer + '/verifytoken'
         }
     }
 }

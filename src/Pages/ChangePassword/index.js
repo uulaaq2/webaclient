@@ -5,40 +5,46 @@ import logo from '../../images/logo.png'
 import React, { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import BStack from '../../Base/BStack'
-import BBox from '../../Base/BBox'
 import BGrid from '../../Base/BGrid'
+import BBox from '../../Base/BBox'
 import BTypography from '../../Base/BTypography'
-import BDialog from '../../Base/BDialog'
 import BButton from '../../Base/BButton'
 import BLoadingButton from '../../Base/BLoadingButton'
 import BTextField from '../../Base/BTextField'
 import config from '../../config'
 import BPaper from '../../Base/BPaper'
 import fVerifyPassword from '../../functions/user/fVerifyPassword'
-import validateInputFields from '../../functions/validateInputFields'
+import fChangePassword from '../../functions/user/fChangePassword'
+import fGenerateToken from '../../functions/user/fGenerateToken'
+import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
 import BFormError from '../../Base/BAlerts/BFormError'
+import { setError, setSuccess } from '../../functions/setReply'
+import { bSetCookie } from '../../functions/bCookie'
+import { Grow } from '@mui/material'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import { Box } from '@mui/material'
 
-const getToken = (token) => token.substring(0, token.length - 1) 
-const getShowCurrentPassword = (token) => token.slice(-1) === '1' ? true : false
+const getToken = (token) => token.substring(0, token.length - 3)
+const getSetCookie = (token) => token.charAt(token.length - 3) === '1' ? true : false
+const getRememberMe = (token) => token.charAt(token.length - 2) === '1' ? true : false
+const getShowCurrentPassword = (token) => token.charAt(token.length - 1) === '1' ? true : false
 
 const ChangePassword = () => {
-  document.title = config.urls.signIn.name + ' | ' + config.app.name
+  document.title = config.urls.user.signIn.name + ' | ' + config.app.name
   
   const { token } = useParams()
   const navigate = useNavigate()
   const [showCurrentPassword, setShowCurrentPassword] = useState(getShowCurrentPassword(token))  
   const [currentPasswordError, setCurrentPasswordError] = useState('')
-  const [checkPasswordInProgress, setCheckPasswordInProgress] = useState(false)
-  const [prevCurrentPassword, setPrevCurrentPassword] = useState('')
-
+  
   const currentPasswordRef = useRef()
   const newPasswordRef = useRef()  
   const confirmNewPasswordRef = useRef()  
-
   
   const [inProgress, setInProgress] = useState(false)  
   const [erroredInputs, setErroredInputs] = useState([])
   const [formError, setFormError] = useState('')
+  const [passwordIsChanged, setPasswordIsChanged] = useState(false)
 
   const [inputs] = useState({
     currentPassword: {      
@@ -65,6 +71,8 @@ const ChangePassword = () => {
       type: 'password',
       errorText: '',
       ref: confirmNewPasswordRef,
+      match: newPasswordRef,
+      matchLabel: 'New password',
       required: true,
       validate: true
     },
@@ -90,49 +98,97 @@ const ChangePassword = () => {
     navigate(-1)
   }
 
-  function handleSetPrevCurrentPassword() {
-    setPrevCurrentPassword(inputs.currentPassword.ref.current.value)    
-  }
-  
-  async function handleCheckCurrentPassword() {
+  getToken(token)
+  getShowCurrentPassword(token)
+  getRememberMe(token)
+  getSetCookie(token)
+  async function handleVerifyCurrentPassword() {
     try {
       if (inputs.currentPassword.ref.current.value.replace(/ /g, "") === '') {
-        setCurrentPasswordError('')
-        setCheckPasswordInProgress(false)
 
-        return
+        return setSuccess()        
       }
 
-      if (prevCurrentPassword === inputs.currentPassword.ref.current.value) return
-
-      const verifyCurrentPasswordResult = await fVerifyPassword(currentPasswordRef.current.value, getToken(token))        
+      const verifyCurrentPasswordResult = await fVerifyPassword(currentPasswordRef.current.value, getToken(token))     
       if (verifyCurrentPasswordResult.status === 'error') {
-        throw new Error(verifyCurrentPasswordResult.message)
+        setFormError(verifyCurrentPasswordResult.message)
+
+        return
       }
       if (verifyCurrentPasswordResult.status !== 'ok') {
         inputs.currentPassword.errorText = verifyCurrentPasswordResult.message
-        inputs.setErroredInputs(currentPasswordRef.current)
-        return
+        inputs.setErroredInputs(() => [inputs.currentPassword.ref.current])
+
+        return verifyCurrentPasswordResult
       }
+
+      return setSuccess()
     } catch (error) {
-      setFormError(error)
-    } finally {
-      setCheckPasswordInProgress(false)
+      return setError(error)
     }
   }
 
-  async function handleSubmit() {
-    if (checkPasswordInProgress) return
-    
+  async function handleSubmit() {    
     try {
+      clearErrors()
+      setInProgress(true)
+
+      if (showCurrentPassword) {
+        const verifyCurrentPasswordResult = await handleVerifyCurrentPassword()
+        if (verifyCurrentPasswordResult.status !== 'ok') {
+          setInProgress(false)
+
+          return
+        }
+      }
+
       const validateInputFieldsResult = validateInputFields(inputs)
       if (validateInputFieldsResult === 'error') {
-        throw new Error(validateInputFieldsResult.message)
+        setFormError(validateInputFieldsResult.message)
+        setInProgress(false)
+
+        return
       }
-      if (validateInputFieldsResult.status !== 'ok') return
+
+      if (validateInputFieldsResult.status !== 'ok') {
+        setInProgress(false)        
+
+        return
+      }
+
+      const changePasswordResult = await fChangePassword(newPasswordRef.current.value, getToken(token))
+      if (changePasswordResult.status === 'error') {
+        setFormError(changePasswordResult.message)
+        setInProgress(false)
+
+        return
+      }
+      if (getSetCookie(token)) {
+        console.log(changePasswordResult)
+        const generateTokenResult = await fGenerateToken(changePasswordResult.token)
+        if (generateTokenResult.status !== 'ok') {
+          setFormError(generateTokenResult.message)
+          setInProgress(false)
+
+          return
+        }
+
+        const setCookieResult = bSetCookie('token', changePasswordResult.token, getRememberMe(token))
+        if (setCookieResult.status !== 'ok') {
+          setFormError(setCookieResult.message)
+          setInProgress(false)
+
+          return
+        }
+      }
+      setInProgress(false)
+      
+      setPasswordIsChanged(true)
     } catch (error) {
-      setFormError(error.message)
-    }
+      if (error.message) {
+        setFormError(error.message)
+      }
+    } 
   }
 
   return (
@@ -141,36 +197,88 @@ const ChangePassword = () => {
         <img src={logo} alt='' className={globalStyle.logoTopLeft} />
         <BStack>
           <BTypography variant='h5' style={{marginBottom: '1.2rem'}}>
-            Change password
+            { !passwordIsChanged ? 'Change password' : '' }
           </BTypography>
         </BStack>
-        <BStack spacing='1.2rem'>
-          { showCurrentPassword 
+        { passwordIsChanged             
             ? 
-              <BTextField 
-                label={inputs.currentPassword.label} 
-                type={inputs.currentPassword.type} 
-                errorText={inputs.currentPassword.errorText || currentPasswordError} 
-                inputRef={currentPasswordRef}                 
-                onFocus={handleSetPrevCurrentPassword}
-                onBlur={handleCheckCurrentPassword}                
-                fullWidth 
-              />
+                <PasswordIsChanged countDownFrom={10} redirectUrl={config.urls.home} />
             :
-              ''
-          }
-          <BTextField label={inputs.newPassword.label} type={inputs.newPassword.type} errorText={inputs.newPassword.errorText} inputRef={newPasswordRef} fullWidth />
-          <BTextField label={inputs.confirmNewPassword.label} type={inputs.confirmNewPassword.type} errorText={inputs.confirmNewPassword.errorText} inputRef={confirmNewPasswordRef} fullWidth />
-        </BStack>      
-        <BStack sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-          <BButton buttonType='text' onClick={handleCancel}>Go Back</BButton>
-          <BLoadingButton buttonType='submit' onClick={handleSubmit} loading={inProgress}>Set new password</BLoadingButton>
-        </BStack>
-        <BStack>
-          { formError ? <BFormError message={formError} /> : '' }
-        </BStack>
+            <>
+            <BStack spacing='1.2rem'>
+            { showCurrentPassword 
+              ? 
+                <BTextField 
+                  label={inputs.currentPassword.label} 
+                  type={inputs.currentPassword.type} 
+                  errorText={inputs.currentPassword.errorText || currentPasswordError} 
+                  inputRef={currentPasswordRef}                 
+                  fullWidth 
+                />
+              :
+                ''
+            }
+            <BTextField label={inputs.newPassword.label} type={inputs.newPassword.type} errorText={inputs.newPassword.errorText} inputRef={newPasswordRef} fullWidth />
+            <BTextField label={inputs.confirmNewPassword.label} type={inputs.confirmNewPassword.type} errorText={inputs.confirmNewPassword.errorText} inputRef={confirmNewPasswordRef} fullWidth />
+          </BStack>      
+          <BStack sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <BButton buttonType='text' onClick={handleCancel}>Go Back</BButton>
+            <BLoadingButton buttonType='submit' onClick={handleSubmit} loading={inProgress}>Set new password</BLoadingButton>
+          </BStack>
+          <BStack>
+            { formError ? <BFormError message={formError} /> : '' }
+          </BStack>
+          </>
+        }
       </BPaper>
     </BGrid>
+  )
+}
+
+const PasswordIsChanged = ({ countDownFrom = null, redirectUrl = null }) => {
+  const [counter, setCounter] = useState(countDownFrom)
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+
+  }, [])
+
+  useEffect(() => {
+    if (countDownFrom === null) return
+
+    const timer = counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
+    if (counter === 0) {
+      handleRedirect()
+    }
+    return () => clearInterval(timer);    
+  }, [counter]);
+
+  function handleRedirect() {
+    if (!redirectUrl)  {
+      navigate('/')
+    } else {
+      navigate(redirectUrl.path)
+    }
+  }
+  
+  return (
+    <BTypography component="div">
+      <BBox sx={{ width: '100%'}}>
+      <Grow in={true}>
+        <Box>
+          <BStack spacing={5} alignItems="center" justifyContent="center" style={{padding: "2rem"}}>
+            <CheckCircleOutlineIcon color="success" style={{fontSize: "3rem"}} />
+            <BBox sx={{ fontSize: 'h5.fontSize', m: 1 }}>
+              New password is set
+            </BBox>
+            <BButton buttonType='dialogSuccess' onClick={handleRedirect}>
+              {`Go to ${redirectUrl.name} page ${counter}`}
+            </BButton>
+          </BStack>
+        </Box>
+      </Grow>
+      </BBox>
+    </BTypography>
   )
 }
 
