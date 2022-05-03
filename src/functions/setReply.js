@@ -53,7 +53,7 @@ const setError = (error) => {
     if (showClientDevelopmentErros && error.stack) {
         reply.stack = error.stack
     }
-
+    reply.stack = error.stack
     return reply
 }
 

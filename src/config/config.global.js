@@ -1,3 +1,4 @@
+const serverUrl = 'http://localhost:3001'
 module.exports = {
     showClientDevelopmentErros: true,
     cookieExpiresIn: 14,
@@ -30,10 +31,10 @@ module.exports = {
         urls: {
             server: 'http://AUBOTD9X94HD2:3001',
             user: {
-                signIn: 'http://AUBOTD9X94HD2:3001/signin',
-                verifyPassword: 'http://AUBOTD9X94HD2:3001/user/me/verifypassword',
-                changePassword: '/user/me/changepassword',
-                emailResetPasswordLink: '/user/me/emailpasswordresetlink',
+                signIn: serverUrl + '/signin',
+                verifyPassword: serverUrl + '/user/me/verifypassword',
+                changePassword: serverUrl + '/user/me/changepassword',
+                emailResetPasswordLink: serverUrl + '/user/me/emailpasswordresetlink',
             },
             getDrawings: '/getdrawings',
             verifyToken: '/verifytoken'

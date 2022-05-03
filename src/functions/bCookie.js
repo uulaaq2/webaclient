@@ -1,7 +1,7 @@
 import { cookieExpiresIn } from "../config/config.global"
 import { setCustom, setError, setSuccess } from "./setReply"
 
-export function bSetCookie(name, value, setCookieExpirationTime = true) {
+export function bSetCookie(name, value, setCookieExpirationTime = false) {
   try {        
     let expires = ''
     if (setCookieExpirationTime === true) {

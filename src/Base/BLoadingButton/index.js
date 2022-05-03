@@ -1,5 +1,6 @@
 import React from 'react'
 import { LoadingButton } from '@mui/lab'
+import { Fade, CircularProgress } from '@mui/material'
 
 const BLoadingButton = ({ children, buttonType = '', variant = '', color = 'primary', disableElevation = true, ...rest }) => {
   if (buttonType === '') {
@@ -12,7 +13,7 @@ const BLoadingButton = ({ children, buttonType = '', variant = '', color = 'prim
 
   if (buttonType === 'text') {
     variant = 'text'
-  }
+  } 
 
   return (
     <LoadingButton variant={variant} color={color} disableElevation={disableElevation} {...rest} >{children}</LoadingButton>

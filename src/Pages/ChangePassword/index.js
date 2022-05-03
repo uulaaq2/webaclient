@@ -15,8 +15,12 @@ import BTextField from '../../Base/BTextField'
 import config from '../../config'
 import BPaper from '../../Base/BPaper'
 import fVerifyPassword from '../../functions/user/fVerifyPassword'
-import validateInputFields from '../../functions/validateInputFields'
+import fChangePassword from '../../functions/user/fChangePassword'
+import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
 import BFormError from '../../Base/BAlerts/BFormError'
+import { Password } from '@mui/icons-material'
+import { setError, setSuccess, setWarning } from '../../functions/setReply'
+import { bSetCookie } from '../../functions/bCookie'
 
 const getToken = (token) => token.substring(0, token.length - 1) 
 const getShowCurrentPassword = (token) => token.slice(-1) === '1' ? true : false
@@ -26,16 +30,12 @@ const ChangePassword = () => {
   
   const { token } = useParams()
   const navigate = useNavigate()
-  const [showCurrentPassword, setShowCurrentPassword] = useState(getShowCurrentPassword(token))  
-  const [currentPasswordError, setCurrentPasswordError] = useState('')
-  const [checkPasswordInProgress, setCheckPasswordInProgress] = useState(false)
-  const [prevCurrentPassword, setPrevCurrentPassword] = useState('')
 
   const currentPasswordRef = useRef()
   const newPasswordRef = useRef()  
   const confirmNewPasswordRef = useRef()  
-
   
+  const [showCurrentPassword, setShowCurrentPassword] = useState(getShowCurrentPassword(token))
   const [inProgress, setInProgress] = useState(false)  
   const [erroredInputs, setErroredInputs] = useState([])
   const [formError, setFormError] = useState('')
@@ -65,11 +65,13 @@ const ChangePassword = () => {
       type: 'password',
       errorText: '',
       ref: confirmNewPasswordRef,
+      match: newPasswordRef,
+      matchLabel: 'New password',
       required: true,
       validate: true
     },
     inputErors: 0,
-    setErroredInputs: setErroredInputs,
+    setErroredInputs: setErroredInputs
   })  
 
   useEffect(() => {
@@ -90,47 +92,60 @@ const ChangePassword = () => {
     navigate(-1)
   }
 
-  function handleSetPrevCurrentPassword() {
-    setPrevCurrentPassword(inputs.currentPassword.ref.current.value)    
-  }
-  
-  async function handleCheckCurrentPassword() {
+  async function handleVerifyCurrentPassword() {
     try {
-      if (inputs.currentPassword.ref.current.value.replace(/ /g, "") === '') {
-        setCurrentPasswordError('')
-        setCheckPasswordInProgress(false)
-
-        return
+      const verifyPasswordResult = await fVerifyPassword(currentPasswordRef.current.value, getToken(token))
+      if (verifyPasswordResult.status === 'error') {
+        throw new Error(verifyPasswordResult.message)
+      }      
+      if (verifyPasswordResult.status !== 'ok') {
+        return setWarning('Invalid password')
       }
 
-      if (prevCurrentPassword === inputs.currentPassword.ref.current.value) return
+      return setSuccess()
 
-      const verifyCurrentPasswordResult = await fVerifyPassword(currentPasswordRef.current.value, getToken(token))        
-      if (verifyCurrentPasswordResult.status === 'error') {
-        throw new Error(verifyCurrentPasswordResult.message)
-      }
-      if (verifyCurrentPasswordResult.status !== 'ok') {
-        inputs.currentPassword.errorText = verifyCurrentPasswordResult.message
-        inputs.setErroredInputs(currentPasswordRef.current)
-        return
-      }
     } catch (error) {
-      setFormError(error)
-    } finally {
-      setCheckPasswordInProgress(false)
+      return setError(error)
     }
   }
 
-  async function handleSubmit() {
-    if (checkPasswordInProgress) return
-    
+  async function handleSubmit() {    
     try {
+      setInProgress(true)
+      //clearErrors(inputs)
+      const handleVerifyCurrentPasswordResult = await handleVerifyCurrentPassword()
+      if (handleVerifyCurrentPasswordResult.status === 'error') {
+        throw new Error(handleVerifyCurrentPasswordResult.message)
+      }
+      if (handleVerifyCurrentPasswordResult.status !== 'ok') {
+        inputs.currentPassword.errorText = handleVerifyCurrentPasswordResult.message
+        inputs.setErroredInputs((prev) => [inputs.currentPassword.ref.current, ...prev])
+        setInProgress(false)
+
+        return
+      }          
+      
       const validateInputFieldsResult = validateInputFields(inputs)
       if (validateInputFieldsResult === 'error') {
         throw new Error(validateInputFieldsResult.message)
       }
-      if (validateInputFieldsResult.status !== 'ok') return
+      
+      if (validateInputFieldsResult.status !== 'ok') {
+        setInProgress(false) 
+
+        return
+      }
+      
+      const changePasswordResult = await fChangePassword(newPasswordRef.current.value, getToken(token))      
+      if (changePasswordResult.status !== 'ok') {
+        throw new Error(changePasswordResult.message)
+      }
+      console.log(changePasswordResult)
+      bSetCookie('token', changePasswordResult.token)
+
     } catch (error) {
+      setInProgress(false)
+      console.log(error)
       setFormError(error.message)
     }
   }
@@ -150,10 +165,8 @@ const ChangePassword = () => {
               <BTextField 
                 label={inputs.currentPassword.label} 
                 type={inputs.currentPassword.type} 
-                errorText={inputs.currentPassword.errorText || currentPasswordError} 
+                errorText={inputs.currentPassword.errorText} 
                 inputRef={currentPasswordRef}                 
-                onFocus={handleSetPrevCurrentPassword}
-                onBlur={handleCheckCurrentPassword}                
                 fullWidth 
               />
             :

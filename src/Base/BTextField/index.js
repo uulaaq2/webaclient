@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { TextField, Chip, Grow } from '@mui/material'
 import { makeStyles } from "@material-ui/core/styles"
 import InputAdornment from '@mui/material/InputAdornment'
@@ -8,10 +8,10 @@ import DoneIcon from '@mui/icons-material/Done';
 
 const useStyles = makeStyles({
   root: {
-    [`& fieldset`]: {
+    /*[`& fieldset`]: {
           borderRadius: 5,
-    },      
-  },  
+    },*/      
+  },
 })
 
 const ShowError = ({ errorText }) => {
@@ -20,46 +20,30 @@ const ShowError = ({ errorText }) => {
       icon={<ErrorOutlineIcon />} 
       label={errorText} 
       size='small' 
-      sx={{ marginTop: '0.2rem' }}     
+      sx={{ marginTop: '0.2rem', fontSize: '0.8rem' }}     
     />
   )
 }
 
-const BTextField = ({ children, error, errorText = '', loading = false, success = false, ...rest}) => {
-  const classes = useStyles()
-  let inputProps = {}
+const BTextField = ({ 
+    children, 
+    error, 
+    errorText = '', 
+    ...rest}) => {
 
-  if (loading) {
-    inputProps = {
-      endAdornment: (
-          <InputAdornment position="start">
-            <CircularProgress size={20}/>
-          </InputAdornment>
+      const classes = useStyles()
+      
+      return (
+        <div>
+          <TextField 
+            error={errorText ? true : false } 
+            //className={classes.root} 
+            {...rest}             
+          />
+          { errorText ? <ShowError errorText={errorText} /> : '' }
+        </div>
       )
-    }
-  }
 
-  if (success) {
-    inputProps = {
-      endAdornment: (
-          <InputAdornment position="start">
-            <DoneIcon />
-          </InputAdornment>
-      )
-    }
-  }
-
-  return (
-    <div>
-      <TextField 
-        error={errorText ? true : false } 
-        inputProps={inputProps}
-        {...rest} 
-        className={classes.root} 
-      />
-      { errorText ? <ShowError errorText={errorText} /> : '' }
-    </div>
-  );
-};
+}
 
 export default BTextField;
