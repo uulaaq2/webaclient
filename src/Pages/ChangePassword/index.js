@@ -23,17 +23,21 @@ import { bSetCookie } from '../../functions/bCookie'
 import { Grow } from '@mui/material'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import { Box } from '@mui/material'
+import { ConstructionOutlined } from '@mui/icons-material'
+import fSetDocumentTitle from '../../functions/fSetPageTitle'
+import useAppNavigate from '../../hooks/useAppNavigate'
 
 const getToken = (token) => token.substring(0, token.length - 3)
 const getSetCookie = (token) => token.charAt(token.length - 3) === '1' ? true : false
 const getRememberMe = (token) => token.charAt(token.length - 2) === '1' ? true : false
 const getShowCurrentPassword = (token) => token.charAt(token.length - 1) === '1' ? true : false
 
-const ChangePassword = () => {
-  document.title = config.urls.user.signIn.name + ' | ' + config.app.name
+const ChangePassword = ({ urlInfo }) => {
+  fSetDocumentTitle(urlInfo)
   
   const { token } = useParams()
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
+
   const [showCurrentPassword, setShowCurrentPassword] = useState(getShowCurrentPassword(token))  
   const [currentPasswordError, setCurrentPasswordError] = useState('')
   
@@ -164,8 +168,7 @@ const ChangePassword = () => {
         return
       }
       if (getSetCookie(token)) {
-        console.log(changePasswordResult)
-        const generateTokenResult = await fGenerateToken(changePasswordResult.token)
+        const generateTokenResult = await fGenerateToken(getToken(token))
         if (generateTokenResult.status !== 'ok') {
           setFormError(generateTokenResult.message)
           setInProgress(false)
@@ -173,7 +176,7 @@ const ChangePassword = () => {
           return
         }
 
-        const setCookieResult = bSetCookie('token', changePasswordResult.token, getRememberMe(token))
+        const setCookieResult = bSetCookie('token', generateTokenResult.token, getRememberMe(token))
         if (setCookieResult.status !== 'ok') {
           setFormError(setCookieResult.message)
           setInProgress(false)

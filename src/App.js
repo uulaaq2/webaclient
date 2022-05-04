@@ -4,15 +4,17 @@ import config from './config'
 import Home from './Pages/Home'
 import SignIn from './Pages/SignIn'
 import ChangePassword from './Pages/ChangePassword'
+import CPageError from './Components/CPageError'
 
 const App = () =>{
     return (
     <Router>
         <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path={config.urls.home.path} element={<Home />}></Route>
-          <Route path={config.urls.user.signIn.path} element={<SignIn />}></Route>                    
-          <Route path={config.urls.user.changePassword.path + '/:token'} element={<ChangePassword />}></Route>                                        
+          <Route path="/" element={<Home urlInfo={config.urls.home} />}></Route>
+          <Route path={config.urls.home.path} element={<Home urlInfo={config.urls.home} />}></Route>
+          <Route path={config.urls.user.signIn.path} element={<SignIn urlInfo={config.urls.user.signIn}/>}></Route>                    
+          <Route path={config.urls.user.changePassword.path + '/:token'} element={<ChangePassword urlInfo={config.urls.user.changePassword} />}></Route>                                        
+          <Route path={config.urls.error.path} element={<CPageError urlInfo={config.urls.error} />}></Route>                              
         </Routes>      
     </Router>        
     )

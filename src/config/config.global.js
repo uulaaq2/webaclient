@@ -28,6 +28,10 @@ module.exports = {
         drawings: { 
             path: '/drawings',
             name: 'Loop PDFs'
+        },
+        error: {
+            path: '/error',
+            name: 'Error'
         }
     },
     api: {
@@ -37,7 +41,8 @@ module.exports = {
                 verifyPassword: apiServer + '/user/me/verifypassword',
                 changePassword: apiServer + '/user/me/changepassword',
                 emailResetPasswordLink: apiServer + '/user/me/emailpasswordresetlink',
-                generateToken: apiServer + '/user/me/generatetoken'
+                generateToken: apiServer + '/user/me/generatetoken',
+                verifyToken: apiServer + '/user/me/verifytoken',
             },
             getDrawings: apiServer + '/getdrawings',
             verifyToken: apiServer + '/verifytoken'
