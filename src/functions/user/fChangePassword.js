@@ -4,7 +4,7 @@ import config from '../../config'
 
 async function fChangePassword(newPassword, token) {  
   try {
-    const url = config.api.urls.user.changePassword
+    const url = config.api.urls.user.changePassword  
 
     const data = {
       newPassword,

@@ -2,9 +2,12 @@ import React from 'react'
 import { Link } from '@mui/material'
 import style from './style.css'
 
-const BLink = ({ children, ...rest }) => {
+const BLink = ({ children, variant, ...rest }) => {
+    if (!variant) {
+        variant = 'body2'
+    }
     return (
-        <Link {...rest} className={style.link} underline='hover'>{children}</Link>
+        <Link variant={variant} {...rest} className={style.link} underline='hover'>{children}</Link>
     );
 };
 

@@ -60,13 +60,12 @@ export const validateInputFields = (inputs) => {
 }
 
 export const clearErrors = (inputs) => {
-  for (let key in inputs) {   
+  for (let key in inputs) {    
     if (inputs.hasOwnProperty(key)) {
-      if (inputs[key].validate) {
-        inputs[key].errorText = ''
-      }
+        if (inputs[key].validate) {
+          inputs[key].errorText = ''
+          inputs.setErroredInputs(() => [])
+        }
     }
   }
-
-  inputs.setErroredInputs(() => [])
 }

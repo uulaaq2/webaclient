@@ -44,7 +44,7 @@ const setCustom = (status, message = '')  => {
     return reply
 }
 
-const setError = (error) => {
+const setError = (error, data = null) => {
     let reply = {
         status: 'error',
         message: error.message
@@ -53,7 +53,11 @@ const setError = (error) => {
     if (showClientDevelopmentErros && error.stack) {
         reply.stack = error.stack
     }
-    reply.stack = error.stack
+
+    if (data) {
+        reply.data = data
+    }
+
     return reply
 }
 

@@ -1,4 +1,5 @@
-const serverUrl = 'http://localhost:3001'
+const apiServer = 'http://localhost:3001'
+
 module.exports = {
     showClientDevelopmentErros: true,
     cookieExpiresIn: 14,
@@ -14,30 +15,41 @@ module.exports = {
             path: '/',
             name: 'Home'
         },
-        signIn: {
-            path: '/signin',
-            name: 'Sign in'
-        },
-        changePassword: {
-            path: '/changepassword',
-            name: 'Change password'
+        user : {
+            signIn: {
+                path: '/signin',
+                name: 'Sign in'
+            },
+            changePassword: {
+                path: '/changepassword',
+                name: 'Change password'
+            }
         },
         drawings: { 
             path: '/drawings',
             name: 'Loop PDFs'
+        },
+        error: {
+            path: '/error',
+            name: 'Error'
+        },
+        public: {
+            path: '/public',
+            name: 'Welcome'
         }
     },
     api: {
         urls: {
-            server: 'http://AUBOTD9X94HD2:3001',
             user: {
-                signIn: serverUrl + '/signin',
-                verifyPassword: serverUrl + '/user/me/verifypassword',
-                changePassword: serverUrl + '/user/me/changepassword',
-                emailResetPasswordLink: serverUrl + '/user/me/emailpasswordresetlink',
+                signIn: apiServer + '/signin',
+                verifyPassword: apiServer + '/user/me/verifypassword',
+                changePassword: apiServer + '/user/me/changepassword',
+                emailResetPasswordLink: apiServer + '/user/me/emailpasswordresetlink',
+                generateToken: apiServer + '/user/me/generatetoken',
+                verifyToken: apiServer + '/user/me/verifytoken',
             },
-            getDrawings: '/getdrawings',
-            verifyToken: '/verifytoken'
+            getDrawings: apiServer + '/getdrawings',
+            verifyToken: apiServer + '/verifytoken'
         }
     }
 }

@@ -2,13 +2,13 @@ import { setError, setSuccess, setWarning } from '../setReply'
 import BPost from '../bFetch'
 import config from '../../config'
 
-async function fVerifyPassword(currentPassword, token) {  
+async function fVerifyToken(token, includeUserData = null) {  
   try {
-    const url = config.api.urls.user.verifyPassword  
+    const url = config.api.urls.user.verifyToken  
 
     const data = {
-      currentPassword,
-      token
+      token,
+      includeUserData
     }
 
     const fetchOptions = {
@@ -18,12 +18,12 @@ async function fVerifyPassword(currentPassword, token) {
       }
     }
   
-    const verifyPasswordResult = await BPost(url, data, fetchOptions)    
-
-    return verifyPasswordResult    
+    const verifyTokenResult = await BPost(url, data, fetchOptions)
+    
+    return verifyTokenResult    
   } catch (error) {
     return setError(error)
   }
 }
 
-export default fVerifyPassword
+export default fVerifyToken

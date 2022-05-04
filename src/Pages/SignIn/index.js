@@ -9,7 +9,6 @@ import BCheckBox from '../../Base/BCheckBox'
 import BStack from '../../Base/BStack'
 import BPaper from '../../Base/BPaper'
 import BTextField from '../../Base/BTextField'
-import { styled } from '@mui/system'
 import logo from '../../images/logo.png'
 import config from '../../config'
 import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
@@ -17,9 +16,16 @@ import BFormError from '../../Base/BAlerts/BFormError'
 import fSignIn from '../../functions/user/fSignIn'
 import { useNavigate } from 'react-router-dom'
 import { bSetCookie } from '../../functions/bCookie'
+import fSetPageTitle from '../../functions/fSetPageTitle'
+import useSetUserContext from '../../hooks/useSetUserContext'
+import useAppNavigate from '../../hooks/useAppNavigate'
+import useIsUserSignedIn from '../../hooks/useIsUserSignedIn'
 
-const SignIn = () => { 
-  document.title = config.urls.signIn.name + ' | ' + config.app.name
+const SignIn = ({ urlInfo }) => { 
+  fSetPageTitle(urlInfo)  
+
+  const appNavigate = useAppNavigate()
+  const [userContextIsSet, setUserContextIsSet] = useSetUserContext()
 
   const emailRef = useRef()
   const passwordRef = useRef()  
@@ -27,7 +33,7 @@ const SignIn = () => {
 
   const [inProgress, setInProgress] = useState(false)
   const [erroredInputs, setErroredInputs] = useState([])
-  const [formError, setFormError] = useState('')
+  const [formError, setFormError] = useState('')  
   
   const navigate = useNavigate()
 
@@ -66,6 +72,11 @@ const SignIn = () => {
     }
   }, [erroredInputs])
 
+  useEffect(() => {
+    if (userContextIsSet) {
+      appNavigate(config.urls.home.path)
+    }
+  }, [userContextIsSet])
 
   async function handleSubmit() {    
     setShowDialog(true)
@@ -80,7 +91,7 @@ const SignIn = () => {
 
       const email = emailRef.current.value
       const password = passwordRef.current.value
-      const rememberMe = rememberMeRef.current.checked
+      let rememberMe = rememberMeRef.current.checked
 
       const signInResult = await fSignIn(email, password, true, rememberMe)   
       if (signInResult.status === 'error') {
@@ -89,8 +100,21 @@ const SignIn = () => {
       if (signInResult.status === 'accountIsExpired') {
         throw new Error('Your account is expired, please contact to your system administrator')
       }
+
+      if (signInResult.hasOwnProperty('user')) {
+        if (signInResult.user.Can_Be_Remembered === 'No') {                    
+          rememberMe = false
+        }
+      }
+
       if (signInResult.status === 'shouldChangePassword') {
-        navigate(config.urls.changePassword.path + '/' + signInResult.token + '1')
+        
+        // prepare token and other options for change password
+        // last 3 digits for set cookie / remember me / show current password - 0: off / 1: on
+        // third from last digit: set cookie
+        // second from last digit: remember me depends on if the remember me checkbox is checked
+        // last digit: show current password
+        navigate(config.urls.user.changePassword.path + '/' + signInResult.token + '1' + (rememberMe ? '1' : '0') + '0')
 
         return
       }      
@@ -99,7 +123,19 @@ const SignIn = () => {
       }
 
       bSetCookie('token', signInResult.token, rememberMe)
+      setUserContextIsSet(signInResult.user)
       
+      
+      
+
+      
+/*      if (signInResult.user.Home_Page) {
+        navigate(signInResult.user.Home_Page)
+      } else  {
+        navigate(config.urls.home.path)
+      }
+ */
+
     } catch (error) {      
       setFormError(error.message)
       setInProgress(false)
@@ -115,7 +151,7 @@ const SignIn = () => {
           <BTextField label={inputs.password.label} type={inputs.password.type} errorText={inputs.password.errorText} inputRef={passwordRef} fullWidth />
           <BStack flexDirection='row' justifyContent='space-between' alignItems='center'>
             <BCheckBox label='Remember me' color='primary' inputRef={rememberMeRef} />
-            <BLink>Forgot Password?</BLink>
+            <BLink style={{display: 'none'}}>Forgot Password?</BLink>
           </BStack>              
         </BStack>          
         <BStack>
