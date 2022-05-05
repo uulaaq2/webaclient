@@ -4,28 +4,23 @@ import logo from '../../images/logo.png'
 
 import React, { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import BStack from '../../Base/BStack'
-import BGrid from '../../Base/BGrid'
-import BBox from '../../Base/BBox'
-import BTypography from '../../Base/BTypography'
-import BButton from '../../Base/BButton'
-import BLoadingButton from '../../Base/BLoadingButton'
-import BTextField from '../../Base/BTextField'
 import config from '../../config'
-import BPaper from '../../Base/BPaper'
 import fVerifyPassword from '../../functions/user/fVerifyPassword'
 import fChangePassword from '../../functions/user/fChangePassword'
 import fGenerateToken from '../../functions/user/fGenerateToken'
-import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
+import { validateInputFields, clearErrors } from '../../functions/fValidateInputFields'
 import BFormError from '../../Base/BAlerts/BFormError'
-import { setError, setSuccess } from '../../functions/setReply'
-import { bSetCookie } from '../../functions/bCookie'
+import { setError, setSuccess } from '../../functions/fSetReply'
+import { bSetCookie } from '../../functions/fCookie'
 import { Grow } from '@mui/material'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import { Box } from '@mui/material'
-import { ConstructionOutlined } from '@mui/icons-material'
-import fSetDocumentTitle from '../../functions/fSetPageTitle'
+import fSetPageTitle from '../../functions/fSetPageTitle'
 import useAppNavigate from '../../hooks/useAppNavigate'
+import BInputGroup from './../../Base/BInputGroup/index';
+
+import { Grid, Paper, Stack, Link, Checkbox, Typography, Button } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 
 const getToken = (token) => token.substring(0, token.length - 3)
 const getSetCookie = (token) => token.charAt(token.length - 3) === '1' ? true : false
@@ -33,10 +28,10 @@ const getRememberMe = (token) => token.charAt(token.length - 2) === '1' ? true :
 const getShowCurrentPassword = (token) => token.charAt(token.length - 1) === '1' ? true : false
 
 const ChangePassword = ({ urlInfo }) => {
-  fSetDocumentTitle(urlInfo)
+  fSetPageTitle(urlInfo)
   
   const { token } = useParams()
-  const navigate = useAppNavigate()
+  const appNavigate = useAppNavigate()
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(getShowCurrentPassword(token))  
   const [currentPasswordError, setCurrentPasswordError] = useState('')
@@ -99,13 +94,9 @@ const ChangePassword = ({ urlInfo }) => {
   }, [erroredInputs])
 
   function handleCancel() {
-    navigate(-1)
+    appNavigate(-1)
   }
 
-  getToken(token)
-  getShowCurrentPassword(token)
-  getRememberMe(token)
-  getSetCookie(token)
   async function handleVerifyCurrentPassword() {
     try {
       if (inputs.currentPassword.ref.current.value.replace(/ /g, "") === '') {
@@ -195,23 +186,23 @@ const ChangePassword = ({ urlInfo }) => {
   }
 
   return (
-    <BGrid className={moduleStyle.mainContainer}>
-      <BPaper className={moduleStyle.formContainer}>
+    <Grid className={moduleStyle.mainContainer}>
+      <Paper className={moduleStyle.formContainer}>
         <img src={logo} alt='' className={globalStyle.logoTopLeft} />
-        <BStack>
-          <BTypography variant='h5' style={{marginBottom: '1.2rem'}}>
+        <Stack>
+          <Typography variant='h5' style={{marginBottom: '1.2rem'}}>
             { !passwordIsChanged ? 'Change password' : '' }
-          </BTypography>
-        </BStack>
+          </Typography>
+        </Stack>
         { passwordIsChanged             
             ? 
                 <PasswordIsChanged countDownFrom={10} redirectUrl={config.urls.home} />
             :
             <>
-            <BStack spacing='1.2rem'>
+            <Stack spacing='1.2rem'>
             { showCurrentPassword 
               ? 
-                <BTextField 
+                <BInputGroup
                   label={inputs.currentPassword.label} 
                   type={inputs.currentPassword.type} 
                   errorText={inputs.currentPassword.errorText || currentPasswordError} 
@@ -221,26 +212,26 @@ const ChangePassword = ({ urlInfo }) => {
               :
                 ''
             }
-            <BTextField label={inputs.newPassword.label} type={inputs.newPassword.type} errorText={inputs.newPassword.errorText} inputRef={newPasswordRef} fullWidth />
-            <BTextField label={inputs.confirmNewPassword.label} type={inputs.confirmNewPassword.type} errorText={inputs.confirmNewPassword.errorText} inputRef={confirmNewPasswordRef} fullWidth />
-          </BStack>      
-          <BStack sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-            <BButton buttonType='text' onClick={handleCancel}>Go Back</BButton>
-            <BLoadingButton buttonType='submit' onClick={handleSubmit} loading={inProgress}>Set new password</BLoadingButton>
-          </BStack>
-          <BStack>
+            <BInputGroup label={inputs.newPassword.label} type={inputs.newPassword.type} errorText={inputs.newPassword.errorText} inputRef={newPasswordRef} fullWidth />
+            <BInputGroup label={inputs.confirmNewPassword.label} type={inputs.confirmNewPassword.type} errorText={inputs.confirmNewPassword.errorText} inputRef={confirmNewPasswordRef} fullWidth />
+          </Stack>      
+          <Stack sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <Button variant='text' onClick={handleCancel}>Go Back</Button>
+            <LoadingButton variant='contained' onClick={handleSubmit} loading={inProgress}>Set new password</LoadingButton>
+          </Stack>
+          <Stack>
             { formError ? <BFormError message={formError} /> : '' }
-          </BStack>
+          </Stack>
           </>
         }
-      </BPaper>
-    </BGrid>
+      </Paper>
+    </Grid>
   )
 }
 
 const PasswordIsChanged = ({ countDownFrom = null, redirectUrl = null }) => {
   const [counter, setCounter] = useState(countDownFrom)
-  const navigate = useNavigate()
+  const appNavigate = useAppNavigate()
   
   useEffect(() => {
 
@@ -258,30 +249,30 @@ const PasswordIsChanged = ({ countDownFrom = null, redirectUrl = null }) => {
 
   function handleRedirect() {
     if (!redirectUrl)  {
-      navigate('/')
+      appNavigate('/')
     } else {
-      navigate(redirectUrl.path)
+      appNavigate(redirectUrl.path)
     }
   }
   
   return (
-    <BTypography component="div">
-      <BBox sx={{ width: '100%'}}>
+    <Typography component="div">
+      <Box sx={{ width: '100%'}}>
       <Grow in={true}>
         <Box>
-          <BStack spacing={5} alignItems="center" justifyContent="center" style={{padding: "2rem"}}>
+          <Stack spacing={5} alignItems="center" justifyContent="center" style={{padding: "2rem"}}>
             <CheckCircleOutlineIcon color="success" style={{fontSize: "3rem"}} />
-            <BBox sx={{ fontSize: 'h5.fontSize', m: 1 }}>
+            <Box sx={{ fontSize: 'h5.fontSize', m: 1 }}>
               New password is set
-            </BBox>
-            <BButton buttonType='dialogSuccess' onClick={handleRedirect}>
+            </Box>
+            <Button variant='contained' color='success' onClick={handleRedirect}>
               {`Go to ${redirectUrl.name} page ${counter}`}
-            </BButton>
-          </BStack>
+            </Button>
+          </Stack>
         </Box>
       </Grow>
-      </BBox>
-    </BTypography>
+      </Box>
+    </Typography>
   )
 }
 

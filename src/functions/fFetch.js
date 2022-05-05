@@ -1,4 +1,4 @@
-import { setError, setSuccess, setWarning } from './setReply'
+import { setError, setSuccess, setWarning } from './fSetReply'
 import axios from 'axios'
 
 async function BPost(url, data = {}, fetchOptions = {}) {
@@ -9,6 +9,7 @@ async function BPost(url, data = {}, fetchOptions = {}) {
 
   try {
     const BPostResult = await axios.post(url, data, fetchOptions)
+
     return BPostResult.data
   } catch (error) {
     return setError(error)

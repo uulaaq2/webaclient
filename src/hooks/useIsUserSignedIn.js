@@ -1,60 +1,70 @@
 import React, { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppWrapper'
 import fVerifyToken from '../functions/user/fVerifyToken'
-import { bGetCookie } from '../functions/bCookie'
-import CPageError from '../Components/CPageError'
-import { setError, setSuccess, setWarning } from '../functions/setReply'
+import { bGetCookie } from '../functions/fCookie'
+import PPageError from '../Pages/PPageError'
+import { setError, setSuccess, setWarning } from '../functions/fSetReply'
 import useSetUserContext from './useSetUserContext'
+import useAppNavigate from './useAppNavigate'
+import config from '../config'
 
-const useIsUserSignedIn = ( SignInfailUrl ) => {
-  const [value, setValue] = useState(false)  
-  const [isUserContextSet, setIsUserContextSet] = useSetUserContext()
-
+const useIsUserSignedIn = ( signInSuccessUrl = null, SignInfailUrl = null ) => {
+  const [value, setValue] = useState()
+  const { getAppContext } = useAppContext()
+  const [userContext, setUserContext] = useSetUserContext()
+  const appNavigate = useAppNavigate()
+  
+  // run main function on first run of hook
   useEffect(() => {
-    const main = async () => {
-
-      if (appContext.hasOwnKey('user')) {
-        setValue(setSuccess())
-
-        return
-      }
-
-
-      const getTokenResult = bGetCookie('token')
-      if (getTokenResult.status === 'error') {        
-        setValue(setError(getTokenResult.message))
-
-        return
-      }
-      if (getTokenResult.status !== 'ok') {
-        setValue(setWarning('No token found'))
-
-        return
-      }
-      
-
-      const verifyTokenResult = await fVerifyToken(token, true)
-      if (verifyTokenResult.status !== 'ok') {
-        setValue(setWarning(verifyTokenResult.message))
-
-        return
-      }
-      if (verifyTokenResult.status !== 'ok') {
-
-      }
-
-
-      setIsUserContextSet(verifyTokenResult.user)   
-    }
-
     main()
   }, [])
 
-  useEffect(() => {    
-    setValue(setSuccess())
-  }, [isUserContextSet])
+  // main function start
+  const main = async () => {
 
-  return value
+    // check if user context set
+    if (getAppContext.hasOwnProperty('user')) {
+      setValue(true)
+
+      return
+    }
+
+    // check if token exist
+    const getCookieTokenResult = bGetCookie('token')
+    if (getCookieTokenResult.status === 'error') {
+      appNavigate(SignInfailUrl || config.urls.error.path + '/' + getCookieTokenResult.message)
+
+      return
+    }
+    
+    const token = getCookieTokenResult.value    
+    console.log(token)
+    // check if token exist
+    // if exists then verify token
+    // if token is not verified, navigate to Sign in
+    if (token) {      
+      const verifyTokenResult = await fVerifyToken(token, true)      
+      if (verifyTokenResult.status !== 'ok') {
+        appNavigate(config.urls.user.signIn.path)
+
+        return
+      }
+
+      setUserContext(verifyTokenResult.user)            
+      setValue(true)
+
+      return
+    }
+
+    // No user context object or token is found
+    // navigate to public
+    appNavigate(config.urls.public.path)
+
+  // main function end 
+  }
+
+  // return isUserSignedIn value and main function
+  return [value, main]
 }
 
 export default useIsUserSignedIn

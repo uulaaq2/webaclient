@@ -1,7 +1,7 @@
 import config from '../config'
 
-function fSetDocumentTitle( urlInfo ) {
+function fSetPageTitle( urlInfo ) {
   document.title = urlInfo.name + ' | ' + config.app.name
 }
 
-export default fSetDocumentTitle
+export default fSetPageTitle

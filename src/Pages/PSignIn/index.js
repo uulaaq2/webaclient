@@ -2,27 +2,24 @@ import moduleStyle from './style.css'
 import globalStyle from '../../app.css'
 
 import React, { useState, useEffect, useRef } from 'react'
-import BGrid from '../../Base/BGrid'
-import BLoadingButton from '../../Base/BLoadingButton'
-import BLink from '../../Base/BLink'
-import BCheckBox from '../../Base/BCheckBox'
-import BStack from '../../Base/BStack'
-import BPaper from '../../Base/BPaper'
-import BTextField from '../../Base/BTextField'
+import BInputGroup from '../../Base/BInputGroup'
+import BCheckbox from '../../Base/BCheckbox'
 import logo from '../../images/logo.png'
 import config from '../../config'
-import { validateInputFields, clearErrors } from '../../functions/validateInputFields'
+import { validateInputFields, clearErrors } from '../../functions/fValidateInputFields'
 import BFormError from '../../Base/BAlerts/BFormError'
 import fSignIn from '../../functions/user/fSignIn'
-import { useNavigate } from 'react-router-dom'
-import { bSetCookie } from '../../functions/bCookie'
-import fSetDocumentTitle from '../../functions/fSetPageTitle'
+import { bSetCookie } from '../../functions/fCookie'
+import fSetPageTitle from '../../functions/fSetPageTitle'
 import useSetUserContext from '../../hooks/useSetUserContext'
 import useAppNavigate from '../../hooks/useAppNavigate'
 import useIsUserSignedIn from '../../hooks/useIsUserSignedIn'
 
+import { Grid, Paper, Stack, Link, Checkbox } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
+
 const SignIn = ({ urlInfo }) => { 
-  fSetDocumentTitle(urlInfo)  
+  fSetPageTitle(urlInfo)  
 
   const appNavigate = useAppNavigate()
   const [userContextIsSet, setUserContextIsSet] = useSetUserContext()
@@ -33,9 +30,7 @@ const SignIn = ({ urlInfo }) => {
 
   const [inProgress, setInProgress] = useState(false)
   const [erroredInputs, setErroredInputs] = useState([])
-  const [formError, setFormError] = useState('')  
-  
-  const navigate = useNavigate()
+  const [formError, setFormError] = useState('')    
 
   const [showDialog, setShowDialog] = useState(false)
 
@@ -114,7 +109,7 @@ const SignIn = ({ urlInfo }) => {
         // third from last digit: set cookie
         // second from last digit: remember me depends on if the remember me checkbox is checked
         // last digit: show current password
-        navigate(config.urls.user.changePassword.path + '/' + signInResult.token + '1' + (rememberMe ? '1' : '0') + '0')
+        appNavigate(config.urls.user.changePassword.path + '/' + signInResult.token + '1' + (rememberMe ? '1' : '0') + '0')
 
         return
       }      
@@ -143,25 +138,25 @@ const SignIn = ({ urlInfo }) => {
   }
 
   return (
-    <BGrid className={moduleStyle.mainContainer}>
-      <BPaper className={moduleStyle.formContainer}>
+    <Grid className={moduleStyle.mainContainer}>
+      <Paper className={moduleStyle.formContainer}>
         <img src={logo} alt='' className={globalStyle.logoTopLeft} />
-        <BStack spacing='1.2rem'>
-          <BTextField label={inputs.email.label} type={inputs.email.type} errorText={inputs.email.errorText} inputRef={emailRef} fullWidth />
-          <BTextField label={inputs.password.label} type={inputs.password.type} errorText={inputs.password.errorText} inputRef={passwordRef} fullWidth />
-          <BStack flexDirection='row' justifyContent='space-between' alignItems='center'>
-            <BCheckBox label='Remember me' color='primary' inputRef={rememberMeRef} />
-            <BLink style={{display: 'none'}}>Forgot Password?</BLink>
-          </BStack>              
-        </BStack>          
-        <BStack>
-          <BLoadingButton buttonType='submit' onClick={handleSubmit} loading={inProgress}>Sign in</BLoadingButton>
-        </BStack> 
-        <BStack>
+        <Stack spacing='1.2rem'>
+          <BInputGroup label={inputs.email.label} type={inputs.email.type} errorText={inputs.email.errorText} inputRef={emailRef} fullWidth />
+          <BInputGroup label={inputs.password.label} type={inputs.password.type} errorText={inputs.password.errorText} inputRef={passwordRef} fullWidth />
+          <Stack flexDirection='row' justifyContent='space-between' alignItems='center'>
+            <BCheckbox label='Remember me' color='primary' inputRef={rememberMeRef} />
+            <Link style={{display: 'none'}}>Forgot Password?</Link>
+          </Stack>              
+        </Stack>          
+        <Stack>
+          <LoadingButton variant='contained' onClick={handleSubmit} loading={inProgress}>Sign in</LoadingButton>
+        </Stack> 
+        <Stack>
           { formError ? <BFormError message={formError} /> : '' }
-        </BStack>
-      </BPaper>
-    </BGrid>
+        </Stack>
+      </Paper>
+    </Grid>
   )
 
 };

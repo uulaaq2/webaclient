@@ -1,5 +1,5 @@
-import { setError, setSuccess, setWarning } from '../setReply'
-import BPost from '../bFetch'
+import { setError, setSuccess, setWarning } from '../fSetReply'
+import BPost from '../fFetch'
 import config from '../../config'
 
 async function fGenerateToken(token, expiresIn = null) {  
@@ -18,7 +18,7 @@ async function fGenerateToken(token, expiresIn = null) {
       }
     }
   
-    const generateTokenResult = await BPost(url, data, fetchOptions)    
+    const generateTokenResult = await BPost(url, data, fetchOptions)  
 
     return generateTokenResult    
   } catch (error) {

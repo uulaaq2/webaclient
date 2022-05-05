@@ -55,7 +55,9 @@ module.exports={
 
         historyApiFallback: {
             disableDotRule: true
-        }
+        },
+
+        allowedHosts: "all",
     },
     resolve: {
         /** "extensions" 

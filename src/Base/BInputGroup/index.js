@@ -25,7 +25,7 @@ const ShowError = ({ errorText }) => {
   )
 }
 
-const BTextField = ({ children, error, errorText = '', success = false, ...rest}) => {
+const BInputGroup = ({ children, error, errorText = '', success = false, ...rest}) => {
   const classes = useStyles()
 
   return (
@@ -40,4 +40,4 @@ const BTextField = ({ children, error, errorText = '', success = false, ...rest}
   );
 };
 
-export default BTextField;
+export default BInputGroup

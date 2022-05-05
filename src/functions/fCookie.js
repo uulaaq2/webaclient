@@ -1,5 +1,5 @@
 import { cookieExpiresIn } from "../config/config.global"
-import { setCustom, setError, setSuccess } from "./setReply"
+import { setCustom, setError, setSuccess } from "./fSetReply"
 
 export function bSetCookie(name, value, setCookieExpirationTime = true) {
   try {        

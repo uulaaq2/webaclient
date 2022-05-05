@@ -32,6 +32,10 @@ module.exports = {
         error: {
             path: '/error',
             name: 'Error'
+        },
+        public: {
+            path: '/public',
+            name: 'Welcome'
         }
     },
     api: {
@@ -43,9 +47,11 @@ module.exports = {
                 emailResetPasswordLink: apiServer + '/user/me/emailpasswordresetlink',
                 generateToken: apiServer + '/user/me/generatetoken',
                 verifyToken: apiServer + '/user/me/verifytoken',
+                userProfile: apiServer + '/users',
             },
             getDrawings: apiServer + '/getdrawings',
-            verifyToken: apiServer + '/verifytoken'
+            verifyToken: apiServer + '/verifytoken',
         }
+
     }
 }

@@ -17,9 +17,13 @@ const theme = createTheme({
       palette: {
             background: {
                   paper: '#fff'
+            },
+            navbarColor: {
+                  main: '#24292f',
+                  contrastText: '#6a0dad'
             }
-      }
-
+      },
+      shadows: Array(25).fill("none")
 });
 
 const container = document.getElementById("root");

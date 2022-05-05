@@ -11,7 +11,7 @@ export function AppWrapper({ children }) {
     setAppContext
   }
   return (
-    <AppContext.Provider value={{getAppContext, setAppContext}}>
+    <AppContext.Provider value={{appInfo, getAppContext, setAppContext}}>
       {children}
     </AppContext.Provider>
   );

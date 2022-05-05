@@ -1,5 +1,5 @@
-import { setError, setSuccess, setWarning } from '../setReply'
-import BPost from '../bFetch'
+import { setError, setSuccess, setWarning } from '../fSetReply'
+import BPost from '../fFetch'
 import config from '../../config'
 
 async function fSignIn(email, password) {  
